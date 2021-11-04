@@ -4,29 +4,33 @@ import { Characters } from "./components/Characters";
 
 function App() {
   const [characterList, setCharacterList] = useState([]);
-  const [next, setNext] = useState(1);
+  const [next, setNext] = useState('');
 
   useEffect(() => {
-    fetch(`https://rickandmortyapi.com/api/character?page=${next}`)
+    fetch(`https://rickandmortyapi.com/api/character`)
       .then((response) => response.json())
-      .then((response) => setCharacterList(response.results))
+      .then((response) => {
+        setCharacterList(response.results)
+        setNext(response.info.next)
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
+  useEffect(() => {
+    fetch(next)
+      .then((response) => response.json())
+      .then((response) => {
+        setCharacterList([...characterList,...response.results])
+        setNext(response.info.next)
+      })
       .catch((err) => console.log(err));
   }, [next]);
 
-  const previusPage = () => {
-    if (next > 1) {
-      setNext(next - 1);
-    }
-  };
-  const nextPage = () => {
-    setNext(next + 1);
-  };
+  console.log(next)
 
   return (
     <div className="App">
       <header className="App-header">
-        <button onClick={previusPage}>Previus Page</button>
-        <button onClick={nextPage}>Next Page</button>
         {<Characters characterList={characterList} />}
       </header>
     </div>
